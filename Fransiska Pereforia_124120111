@@ -1,0 +1,31 @@
+from abc import ABC, abstractmethod
+
+class Survey(ABC):
+    def __init__(self, name):
+        self.name = name
+
+    @abstractmethod
+    def processing(self):
+        pass
+
+class SeismicSurvey(Survey):
+    def processing(self):
+        print(f"{self.name}: Sedang melakukan Filtering data gelombang...")
+
+class GravitySurvey(Survey):
+    def processing(self):
+        print(f"{self.name}: Sedang melakukan Upward Continuation...")
+
+class MagnetikSurvey(Survey):
+    def processing(self):
+        print(f"{self.name}: Sedang melakukan Anomaly Mapping...")
+
+list_survey = [
+    SeismicSurvey("Seismic Survey"),
+    GravitySurvey("Gravity Survey"),
+    MagnetikSurvey("Magnetik Survey")
+]
+
+print("--- Memulai Proses Processing Semua Survey ---")
+for survey in list_survey:
+    survey.processing()
