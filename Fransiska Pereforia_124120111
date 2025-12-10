@@ -1,0 +1,48 @@
+import csv
+import os
+
+if not os.path.exists('data_seismik.txt'):
+    print("Membuat data_seismik.txt...")
+    with open('data_seismik.txt', 'w') as f:
+        f.write("shot,receiver,twt\n")
+        f.write("0,100,200\n")
+        f.write("0,200,350\n")
+        f.write("0,300,480\n")
+        f.write("0,400,600\n")
+
+def main():
+    with open('data_seismik.txt', 'r') as file:
+        lines = file.readlines()
+        print("Isi file:")
+        for line in lines:
+            print(line.strip())
+    
+    data = []
+    with open('data_seismik.txt', 'r') as file:
+        reader = csv.reader(file)
+        next(reader)  # Skip header
+        for row in reader:
+            if row:
+                data.append([int(row[0]), int(row[1]), int(row[2])])
+    
+    twt = [x[2] for x in data]
+    t_min = min(twt)
+    t_max = max(twt)
+    
+    hasil = []
+    for d in data:
+        norm = (d[2] - t_min) / (t_max - t_min)
+        hasil.append([d[0], d[1], d[2], norm])
+    
+    with open('data_normalisasi.csv', 'w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(['shot', 'receiver', 'twt', 'twt_norm'])
+        for row in hasil:
+            writer.writerow(row)
+    
+    print("\nHasil:")
+    for row in hasil:
+        print(f"{row[0]}, {row[1]}, {row[2]}, {row[3]:.3f}")
+
+if __name__ == "__main__":
+    main()
