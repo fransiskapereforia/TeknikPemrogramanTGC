@@ -1,0 +1,50 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+
+data = {
+    'X': [0, 0, 50, 50, 100, 100],
+    'Y': [0, 50, 0, 50, 0, 50],
+    'Total_Field': [43210, 43280, 43100, 43420, 43050, 43500]
+}
+
+df = pd.DataFrame(data)
+
+print("Data geomagnetik:")
+print(df)
+print()
+print(f"Jumlah titik: {len(df)}")
+print(f"Nilai tertinggi: {df['Total_Field'].max()} nT")
+print(f"Nilai terendah: {df['Total_Field'].min()} nT")
+
+pivot = df.pivot(index='Y', columns='X', values='Total_Field')
+
+X_vals = pivot.columns.values
+Y_vals = pivot.index.values
+X_grid, Y_grid = np.meshgrid(X_vals, Y_vals)
+Z_grid = pivot.values
+
+plt.figure(figsize=(8, 6))
+
+plt.contourf(X_grid, Y_grid, Z_grid, cmap='RdYlBu_r', levels=20)
+plt.colorbar(label='Intensitas (nT)')
+
+plt.scatter(df['X'], df['Y'], c='black', s=30, edgecolor='white', linewidth=1)
+
+for i in range(len(df)):
+    plt.text(df['X'].iloc[i], df['Y'].iloc[i] + 2, 
+             str(df['Total_Field'].iloc[i]), 
+             ha='center', fontsize=8)
+
+plt.xlabel('X (m)')
+plt.ylabel('Y (m)')
+plt.title('Peta Anomali Magnetik - Modul 9')
+plt.grid(True, alpha=0.3)
+
+plt.savefig('peta_magnetik.png', dpi=100)
+plt.show()
+
+df.to_csv('data_magnetik.csv', index=False)
+print("\nFile disimpan:")
+print("- peta_magnetik.png")
+print("- data_magnetik.csv")
