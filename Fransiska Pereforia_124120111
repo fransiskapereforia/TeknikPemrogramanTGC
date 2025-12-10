@@ -1,0 +1,53 @@
+import pandas as pd
+import numpy as np
+
+try:
+    data = pd.read_csv('survey_gravitasi.csv')
+except:
+    data = pd.DataFrame({
+        'Koordinat_Timur': np.random.rand(20) * 100,
+        'Koordinat_Utara': np.random.rand(20) * 100,
+        'Elevasi': np.random.rand(20) * 50 + 10,
+        'Anomali_gravitasi_mgal': np.random.randn(20) * 3
+    })
+    data.to_csv('survey_gravitasi.csv', index=False)
+
+rata = data['Anomali_gravitasi_mgal'].mean()
+std = data['Anomali_gravitasi_mgal'].std()
+batas = 2.0 * std
+
+pos = data[data['Anomali_gravitasi_mgal'] > batas]
+neg = data[data['Anomali_gravitasi_mgal'] < -batas]
+
+print("=== HASIL ANALISIS ===")
+print(f"Jumlah data: {len(data)} titik")
+print(f"Rata-rata: {rata:.2f} mgal")
+print(f"Standar deviasi: {std:.2f} mgal")
+print(f"Batas anomali: ±{batas:.2f} mgal")
+print(f"Anomali positif: {len(pos)} titik")
+print(f"Anomali negatif: {len(neg)} titik")
+
+if len(pos) > 0:
+    pos.to_csv('anomali_positif.csv', index=False)
+    print("Data anomali positif disimpan: anomali_positif.csv")
+
+if len(neg) > 0:
+    neg.to_csv('anomali_negatif.csv', index=False)
+    print("Data anomali negatif disimpan: anomali_negatif.csv")
+
+print("\n=== LOKASI ANOMALI ===")
+if len(pos) > 0:
+    print("Anomali positif ditemukan di:")
+    for i, row in pos.head(3).iterrows():
+        print(f"  - ({row['Koordinat_Timur']:.1f}, {row['Koordinat_Utara']:.1f}) = {row['Anomali_gravitasi_mgal']:.2f} mgal")
+
+if len(neg) > 0:
+    print("Anomali negatif ditemukan di:")
+    for i, row in neg.head(3).iterrows():
+        print(f"  - ({row['Koordinat_Timur']:.1f}, {row['Koordinat_Utara']:.1f}) = {row['Anomali_gravitasi_mgal']:.2f} mgal")
+
+print("\n=== REKOMENDASI ===")
+if len(pos) > 0:
+    print("• Ada anomali positif → kemungkinan batuan padat")
+if len(neg) > 0:
+    print("• Ada anomali negatif → kemungkinan rongga/garam")
