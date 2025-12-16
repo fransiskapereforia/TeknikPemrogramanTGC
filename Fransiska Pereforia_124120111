@@ -1,0 +1,75 @@
+import streamlit as st
+import numpy as np
+import matplotlib.pyplot as plt
+
+st.set_page_config(layout="wide")
+
+st.markdown("# VISUAL DATA SEISMIK")
+st.markdown("---")
+
+# bikin data
+t = np.linspace(0, 2, 200)
+ntr = 40
+d = np.random.randn(ntr, 200)
+for i in range(ntr):
+    d[i] += np.sin(t * (i+1) * 0.7) * 2.5
+
+# sidebar
+with st.sidebar:
+    st.subheader("⚙️ Kontrol")
+    
+    cm = st.selectbox("Warna", ["seismic", "RdBu", "viridis", "plasma", "gray"])
+    
+    md = st.radio("Mode", ["Auto", "Manual"])
+    
+    if md == "Manual":
+        v1 = st.slider("min", -4.0, 0.0, -2.0)
+        v2 = st.slider("max", 0.0, 4.0, 2.0)
+    else:
+        v1 = v2 = None
+    
+    rev = st.checkbox("Balik waktu")
+    
+    sl_trace = st.checkbox("Pilih trace")
+    if sl_trace:
+        t1 = st.slider("awal", 0, ntr-1, 0)
+        t2 = st.slider("akhir", 0, ntr-1, ntr-1)
+    else:
+        t1, t2 = 0, ntr-1
+    
+    save_btn = st.button("💾 Simpan")
+
+# ambil data yg dipilih
+if sl_trace:
+    d_show = d[t1:t2+1]
+else:
+    d_show = d
+
+# plot
+fig, ax = plt.subplots(figsize=(14, 6))
+
+if rev:
+    ext = [t[-1], t[0], t2, t1]
+else:
+    ext = [t[0], t[-1], t1, t2]
+
+img = ax.imshow(d_show, aspect='auto', cmap=cm, 
+                vmin=v1, vmax=v2, extent=ext)
+
+plt.colorbar(img, ax=ax, label='Amp')
+ax.set_xlabel("Waktu (s)")
+ax.set_ylabel("Trace")
+ax.set_title(f"Plot - {cm}")
+
+st.pyplot(fig)
+
+# save
+if save_btn:
+    plt.savefig('plot_seismik.png', dpi=120)
+    st.sidebar.success("✅ disimpan")
+
+# info
+col1, col2, col3 = st.columns(3)
+col1.metric("Trace", f"{len(d_show)}")
+col2.metric("Mode", md)
+col3.metric("Colormap", cm)
